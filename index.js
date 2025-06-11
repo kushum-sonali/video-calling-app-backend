@@ -8,6 +8,7 @@ app.use(cors());
 app.use(express.json());
 require('./mongodb');
 const User = require('./userModel');
+const { set } = require('mongoose');
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -20,13 +21,14 @@ const io = new Server(httpServer, {
 // Store active rooms and their users
 const rooms = new Map();
 const users = {};
+const messageNotify=[];
 io.on('connection', (socket) => {
   // console.log('New client connected:', socket.id);
 socket.on('join-room',async({roomId,name,streamId, handRaised, cameraStatus})=>{
   if(socket.roomId){
     socket.leave(socket.roomId);
   }
-  socket.join(roomId);
+  socket.join(roomId);  
   socket.roomId=roomId;
 
   socket.user = {
@@ -104,14 +106,15 @@ socket.on("mic-status",(data)=>{
  
   // Handle chat messages
   socket.on('chat-message', (message) => {
+    // Add the message to the newMessages array
+  
+   
     // Broadcast the message to all users in the same room
     io.in(socket.roomId).emit('chat-message', message);
   });
   socket.on('send name',(username)=>{
     io.emit('send name',(username));
   });
-
-
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     if (socket.roomId) {
