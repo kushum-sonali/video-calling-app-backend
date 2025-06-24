@@ -8,12 +8,14 @@ app.use(cors());
 app.use(express.json());
 require('./mongodb');
 const User = require('./userModel');
-const { set } = require('mongoose');
+const dotenv= require("dotenv");
+
+dotenv.config()
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173", // Replace with your frontend URL
+    origin: process.env.FRONTEND_URL, // Replace with your frontend URL
     methods: ["GET", "POST"]
   }
 });
